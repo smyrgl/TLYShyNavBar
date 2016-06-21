@@ -18,6 +18,7 @@
 #import "Categories/UIScrollView+Helpers.h"
 
 #import <objc/runtime.h>
+#import <AsyncDisplayKit/AsyncDisplayKit.h>
 
 
 static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManagerKVOContext;
@@ -25,7 +26,7 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
 
 #pragma mark - TLYShyNavBarManager class
 
-@interface TLYShyNavBarManager () <UIScrollViewDelegate>
+@interface TLYShyNavBarManager () <ASCollectionDelegate>
 
 @property (nonatomic, strong) id<TLYShyParent> statusBarController;
 @property (nonatomic, strong) TLYShyViewController *navBarController;
@@ -106,13 +107,13 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
 - (void)dealloc
 {
     // sanity check
-    if (_scrollView.delegate == _delegateProxy)
+    if (_collectionView.asyncDelegate == _delegateProxy)
     {
-        _scrollView.delegate = _delegateProxy.originalDelegate;
+        _collectionView.asyncDelegate = _delegateProxy.originalDelegate;
     }
 
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [_scrollView removeObserver:self forKeyPath:@"contentSize" context:kTLYShyNavBarManagerKVOContext];
+    [_collectionView removeObserver:self forKeyPath:@"contentSize" context:kTLYShyNavBarManagerKVOContext];
 }
 
 #pragma mark - Properties
@@ -140,36 +141,36 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
     [self layoutViews];
 }
 
-- (void)setScrollView:(UIScrollView *)scrollView
+- (void)setCollectionView:(ASCollectionView *)collectionView
 {
-    [_scrollView removeObserver:self forKeyPath:@"contentSize" context:kTLYShyNavBarManagerKVOContext];
+    [_collectionView removeObserver:self forKeyPath:@"contentSize" context:kTLYShyNavBarManagerKVOContext];
 
-    if (_scrollView.delegate == self.delegateProxy)
+    if (_collectionView.asyncDelegate == self.delegateProxy)
     {
-        _scrollView.delegate = self.delegateProxy.originalDelegate;
+        _collectionView.asyncDelegate = self.delegateProxy.originalDelegate;
     }
 
-    _scrollView = scrollView;
-    self.scrollViewController.scrollView = scrollView;
+    _collectionView = collectionView;
+    self.scrollViewController.collectionView = collectionView;
 
-    NSUInteger index = [scrollView.subviews indexOfObjectPassingTest:^BOOL (id obj, NSUInteger idx, BOOL *stop) {
+    NSUInteger index = [collectionView.subviews indexOfObjectPassingTest:^BOOL (id obj, NSUInteger idx, BOOL *stop) {
         return [obj isKindOfClass:[UIRefreshControl class]];
     }];
 
     if (index != NSNotFound) {
-        self.scrollViewController.refreshControl = [scrollView.subviews objectAtIndex:index];
+        self.scrollViewController.refreshControl = [collectionView.subviews objectAtIndex:index];
     }
 
-    if (_scrollView.delegate != self.delegateProxy)
+    if (_collectionView.asyncDelegate != self.delegateProxy)
     {
-        self.delegateProxy.originalDelegate = _scrollView.delegate;
-        _scrollView.delegate = (id)self.delegateProxy;
+        self.delegateProxy.originalDelegate = _collectionView.asyncDelegate;
+        _collectionView.asyncDelegate = (id)self.delegateProxy;
     }
 
     [self cleanup];
     [self layoutViews];
 
-    [_scrollView addObserver:self forKeyPath:@"contentSize" options:0 context:kTLYShyNavBarManagerKVOContext];
+    [_collectionView addObserver:self forKeyPath:@"contentSize" options:0 context:kTLYShyNavBarManagerKVOContext];
 }
 
 - (CGRect)extensionViewBounds
@@ -192,7 +193,7 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
     _disable = disable;
 
     if (!disable) {
-        self.previousYOffset = self.scrollView.contentOffset.y;
+        self.previousYOffset = self.collectionView.contentOffset.y;
     }
 }
 
@@ -233,8 +234,8 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
 
 - (BOOL)_scrollViewIsSuffecientlyLong
 {
-    CGRect scrollFrame = UIEdgeInsetsInsetRect(self.scrollView.bounds, self.scrollView.contentInset);
-    CGFloat scrollableAmount = self.scrollView.contentSize.height - CGRectGetHeight(scrollFrame);
+    CGRect scrollFrame = UIEdgeInsetsInsetRect(self.collectionView.bounds, self.collectionView.contentInset);
+    CGFloat scrollableAmount = self.collectionView.contentSize.height - CGRectGetHeight(scrollFrame);
     return (scrollableAmount > [self.extensionController calculateTotalHeightRecursively]);
 }
 
@@ -258,17 +259,17 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
     if (!isnan(self.previousYOffset))
     {
         // 1 - Calculate the delta
-        CGFloat deltaY = (self.previousYOffset - self.scrollView.contentOffset.y);
+        CGFloat deltaY = (self.previousYOffset - self.collectionView.contentOffset.y);
 
         // 2 - Ignore any scrollOffset beyond the bounds
-        CGFloat start = -self.scrollView.contentInset.top;
+        CGFloat start = -self.collectionView.contentInset.top;
         if (self.previousYOffset < start)
         {
             deltaY = MIN(0, deltaY - (self.previousYOffset - start));
         }
 
         /* rounding to resolve a dumb issue with the contentOffset value */
-        CGFloat end = floorf(self.scrollView.contentSize.height - CGRectGetHeight(self.scrollView.bounds) + self.scrollView.contentInset.bottom - 0.5f);
+        CGFloat end = floorf(self.collectionView.contentSize.height - CGRectGetHeight(self.collectionView.bounds) + self.collectionView.contentInset.bottom - 0.5f);
         if (self.previousYOffset > end && deltaY > 0)
         {
             deltaY = MAX(0, deltaY - self.previousYOffset + end);
@@ -300,7 +301,7 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
             deltaY = MIN(0, availableResistance + deltaY);
         }
         // 5.2 - Only apply resistance if expanding above the status bar
-        else if (self.scrollView.contentOffset.y > 0)
+        else if (self.collectionView.contentOffset.y > 0)
         {
             CGFloat availableResistance = self.expansionResistance - self.resistanceConsumed;
             self.resistanceConsumed = MIN(self.expansionResistance, self.resistanceConsumed + deltaY);
@@ -329,7 +330,7 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
         [self.navBarController updateYOffset:deltaY];
     }
 
-    self.previousYOffset = self.scrollView.contentOffset.y;
+    self.previousYOffset = self.collectionView.contentOffset.y;
 }
 
 - (void)_handleScrollingEnded
@@ -444,8 +445,8 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    [self.scrollView scrollRectToVisible:CGRectMake(0,0,1,1) animated:YES];
-    [self.scrollView flashScrollIndicators];
+    [self.collectionView scrollRectToVisible:CGRectMake(0,0,1,1) animated:YES];
+    [self.collectionView flashScrollIndicators];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -457,7 +458,7 @@ static void * const kTLYShyNavBarManagerKVOContext = (void*)&kTLYShyNavBarManage
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification
 {
-    if (self.scrollView.window) {
+    if (self.collectionView.window) {
         [self.navBarController expand];
     }
 }

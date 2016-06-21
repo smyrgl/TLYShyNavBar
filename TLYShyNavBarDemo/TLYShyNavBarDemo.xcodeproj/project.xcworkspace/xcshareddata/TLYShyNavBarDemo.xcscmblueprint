@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "58D55ECABAD5AAEB583BB3898420091CC2A418B2",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "58D55ECABAD5AAEB583BB3898420091CC2A418B2" : 0,
+    "D96378E1B90C8E05DACB0240943742AB0C7988D5" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "DE065B61-6974-40CD-8DE2-36E0AE0323BB",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "58D55ECABAD5AAEB583BB3898420091CC2A418B2" : "TLYShyNavBar",
+    "D96378E1B90C8E05DACB0240943742AB0C7988D5" : ""
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "TLYShyNavBarDemo",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "TLYShyNavBarDemo\/TLYShyNavBarDemo.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:telly\/TLYShyNavBar.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "58D55ECABAD5AAEB583BB3898420091CC2A418B2"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "ssh:\/\/phabricator.local.disqus.net:69\/diffusion\/DISQUSIOS\/disqus-ios.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "D96378E1B90C8E05DACB0240943742AB0C7988D5"
+    }
+  ]
+}

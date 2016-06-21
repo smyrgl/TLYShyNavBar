@@ -11,10 +11,11 @@
 #import "TLYShyParent.h"
 #import "TLYShyChild.h"
 
+@class ASCollectionView;
 
 @interface TLYShyScrollViewController : NSObject <TLYShyChild>
 
-@property (nonatomic, weak) UIScrollView *scrollView;
+@property (nonatomic, weak) ASCollectionView *collectionView;
 @property (nonatomic, weak) UIRefreshControl *refreshControl;
 @property (nonatomic, weak) TLYShyViewController *parent;
 

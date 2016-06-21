@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import "TLYShyNavBarFade.h"
 
+@class ASCollectionView;
 
 @protocol TLYShyNavBarManagerDelegate;
 
@@ -34,7 +35,7 @@
 /* The scrollView subclass that will drive the contraction/expansion 
  * IMPORTANT: set this property AFTER assigning its delegate, if needed!
  */
-@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) ASCollectionView *collectionView;
 
 /* The extension view to be shown beneath the navbar
  */
