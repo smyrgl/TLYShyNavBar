@@ -100,7 +100,7 @@
         case TLYShyNavBarFadeNavbar:
             self.view.alpha = alpha;
             [self _updateSubviewsAlpha:1.f];
-            break;
+            break;            
     }
 }
 
